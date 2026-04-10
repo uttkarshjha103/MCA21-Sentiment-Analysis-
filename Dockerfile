@@ -2,14 +2,17 @@ FROM python:3.11-slim
 
 WORKDIR /app
 
-# Install dependencies
+# Install dependencies - copy requirements first for layer caching
 COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy app
+# Force reinstall to avoid stale cache
+RUN pip install --no-cache-dir --upgrade pip && \
+    pip install --no-cache-dir -r requirements.txt
+
+# Copy app code
 COPY app/ ./app/
 
-# Create logs and uploads dirs
+# Create required directories
 RUN mkdir -p logs uploads/reports
 
 EXPOSE 8000
